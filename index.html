@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quick Truck - Glass UI</title>
+  <!--
+    Loading Font Awesome for icons. The icons are used in the booking and
+    driver registration forms, and for the new hamburger menu.
+    -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Firebase SDK imports for Realtime Database and Auth -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getDatabase, ref, set, push, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+
+    // Global variables for Firebase access provided by the environment
+    let app = null;
+    let auth = null;
+    let db = null;
+    let appId = 'default-app-id';
+
+    const __firebase_config = {
+      apiKey: "AIzaSyDyqN2xmtJwsnhqfQfNeuMtnZ3sjb7nnMw",
+      authDomain: "quick-truck-66fb0.firebaseapp.com",
+      projectId: "quick-truck-66fb0",
+      storageBucket: "quick-truck-66fb0.firebasestorage.app",
+      messagingSenderId: "477852731829",
+      appId: "1:477852731829:web:e9e143a0bf49ae8e8f71fc",
+      measurementId: "G-M2YRCJB7HX"
+    };
+    let __app_id = "1:477852731829:web:e9e143a0bf49ae8e8f71fc"
+
+    // A promise that resolves when Firebase is initialized and the user is authenticated.
+    let firebaseReadyPromise = new Promise((resolve) => {
+      // Check if the environment variables are available before proceeding.
+      if (typeof __firebase_config !== 'undefined' && typeof __app_id !== 'undefined') {
+        const firebaseConfig = (__firebase_config);
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        appId = __app_id;
+        // Initialize Firebase
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getDatabase(app);
+
+        // Sign in the user using the custom token if available, otherwise sign in anonymously.
+        // This is the core logic for anonymous landing.
+        onAuthStateChanged(auth, async (user) => {
+          if (!user) {
+            try {
+              if (initialAuthToken) {
+                await signInWithCustomToken(auth, initialAuthToken);
+                console.log("Signed in with custom token.");
+              } else {
+                await signInAnonymously(auth);
+                console.log("Signed in anonymously.");
+              }
+            } catch (error) {
+              console.error("Anonymous sign-in failed:", error);
+            }
+          }
+
+          // Re-check for the user after sign-in attempt
+          const currentUser = auth.currentUser;
+          if (currentUser) {
+            console.log("Firebase initialized and user authenticated:", currentUser.uid);
+            resolve({ db, appId, user: currentUser });
+          } else {
+            console.warn("User is not authenticated. Realtime Database operations will not proceed.");
+            resolve({ db: null, appId, user: null });
+          }
+        });
+      } else {
+        console.warn("Firebase configuration or app ID not found. Forms will not be submitted.");
+        resolve({ db: null, appId, user: null });
+      }
+    });
+
+    // Export a function that returns the ready promise for other scripts to use
+    window.getFirebase = () => firebaseReadyPromise;
+  </script>
+
+  <style>
+    /* A common CSS reset to ensure consistent styling across browsers. */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Basic body styling, including a new background image and a cool
+        "glassmorphism" blur effect. The color is set to white for contrast. */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-image: url('https://raw.githubusercontent.com/TK-Sparrow/images/main/bg.png');
+      background-color: #032d66;
+      /* Set a solid background color in case the image doesn't load */
+      background-size: cover;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      background-position: center;
+      color: white;
+      overflow-x: hidden;
+      /* Using a fallback font stack for better compatibility */
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    /* Fixed header with a blurred background for the glass effect. */
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(15px);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 20px;
+    }
+
+    /* Logo styling with a distinct orange color. */
+    .logo-text {
+      font-size: 24px;
+      font-weight: bold;
+      color: #ff9800;
+    }
+
+    /* Styling for the navigation menu on desktop */
+    nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+    }
+
+    nav ul li {
+      margin: 0 15px;
+    }
+
+    nav ul li a {
+      text-decoration: none;
+      color: white;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    nav ul li a:hover {
+      color: #ff9800;
+    }
+
+    /* Hamburger menu button for mobile */
+    .menu-toggle {
+      display: none;
+      cursor: pointer;
+      font-size: 24px;
+      color: white;
+    }
+
+    /* Section styling to fill the viewport and center content. */
+    .section {
+      min-height: 100vh;
+      padding: 120px 20px 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    /*
+        This padding ensures the content of the home section starts below the fixed header,
+        preventing it from being hidden.
+        */
+    #home {
+      padding-top: 100px;
+    }
+
+    /* The main "glass" container for content. This is the core of the
+        glassmorphism design. */
+    .glass-box {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(25px);
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      max-width: 600px;
+      width: 100%;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    /* A simple fade-in animation for the content boxes. */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Form styling for inputs and labels. */
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-group {
+      position: relative;
+    }
+
+    .form-group i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: white;
+      pointer-events: none;
+    }
+
+    /* Special styling for icons in form groups with textareas, placing them at the top. */
+    .form-group.textarea-group i {
+      top: 14px;
+      transform: none;
+    }
+
+    /* General styling for all inputs and select fields to ensure consistency. */
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 14px 14px 14px 45px;
+      background: rgba(255, 255, 255, 0.3);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 10px;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    /* Styling for the select dropdown specifically to fix the white-on-white text issue */
+    .form-group select {
+      width: 100%;
+      padding: 14px 14px 14px 45px;
+      background: rgba(255, 255, 255, 0.3);
+      color: #333;
+      /* Changed from white to a dark color for readability */
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 10px;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .form-group select option {
+      background: #fff;
+      /* Set the background of the options to white for contrast */
+      color: #333;
+      /* Set the text color of the options to dark for readability */
+    }
+
+    /* Specific styling for the textarea to have a better appearance. */
+    .form-group textarea {
+      min-height: 100px;
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .form-group select::placeholder {
+      color: rgba(0, 0, 0, 0.5);
+    }
+
+    .form-group label {
+      /* Labels are not needed in this version, as placeholders and icons are used. */
+      display: none;
+    }
+
+    /* Button styling with a hover effect and a loading state */
+    button {
+      background: #ff9800;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    button:hover {
+      background: #ffa726;
+      transform: scale(1.02);
+    }
+
+    button:disabled {
+      background: #999;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Simple loading spinner for the button */
+    .spinner {
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 4px solid #fff;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      display: none;
+    }
+
+    .spinner.active {
+      display: block;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Message box for success/error messages */
+    .message-box {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      z-index: 100;
+      text-align: center;
+    }
+
+    .message-box button {
+      margin-top: 10px;
+      padding: 8px 16px;
+    }
+
+    /* Footer styling. */
+    footer {
+      background: rgba(0, 0, 0, 0.6);
+      text-align: center;
+      padding: 30px 10px;
+      color: #ccc;
+      font-size: 14px;
+      margin-top: 60px;
+    }
+
+    .footer-content {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Responsive styling for images inside the glass-box */
+    .glass-box img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+      margin-top: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Responsive styling for smaller screens. */
+    @media (max-width: 768px) {
+      header {
+        flex-wrap: wrap;
+        /* Allows the header content to wrap to a new line */
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+
+      nav {
+        display: none;
+        /* Hide the menu by default */
+        flex-basis: 100%;
+        /* Make the menu take up the full width */
+        text-align: center;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 10px 0;
+        transition: display 0.5s ease-in-out;
+      }
+
+      nav.nav-active {
+        display: block;
+        /* Show the menu when the class is active */
+      }
+
+      nav ul {
+        flex-direction: column;
+        align-items: center;
+        padding: 10px 0;
+      }
+
+      nav ul li {
+        margin: 10px 0;
+      }
+
+      .logo-text {
+        font-size: 20px;
+      }
+
+      .section {
+        padding: 100px 10px 40px;
+      }
+
+      .glass-box {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+
+      p {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="logo-text">
+      Quick Truck
+    </div>
+    <div class="menu-toggle" id="menu-toggle">
+      <i class="fas fa-bars"></i>
+    </div>
+    <nav id="nav-menu">
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#book">Book Truck</a></li>
+        <li><a href="#register">Driver Registration</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#feedback">Feedback</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section id="home" class="section">
+    <div class="glass-box">
+      <h1>Welcome to Quick Truck</h1>
+      <p>Fast, reliable truck booking service at your fingertips.</p>
+      <img src="https://placehold.co/600x400/032d66/ff9800?text=Quick+Truck" alt="A Quick Truck" />
+      <p style="margin-top: 20px;">Serving across Tamil Nadu with trust and transparency.</p>
+    </div>
+  </section>
+
+  <section id="book" class="section">
+    <div class="glass-box">
+      <h2>Book Your Truck</h2>
+      <p>Fill out the form below to schedule a pickup and delivery.</p>
+      <form id="bookingForm">
+        <div class="form-group">
+          <i class="fas fa-user"></i>
+          <input type="text" name="name" required placeholder="Your Name" />
+        </div>
+        <div class="form-group">
+          <i class="fas fa-phone"></i>
+          <input type="tel" name="phone" required placeholder="Phone Number" />
+        </div>
+        <div class="form-group">
+          <i class="fas fa-envelope"></i>
+          <input type="email" name="email" required placeholder="Email Address" />
+        </div>
+        <div class="form-group">
+          <i class="fas fa-map-marker-alt"></i>
+          <input type="text" name="pickup" required placeholder="Pickup Address" />
+        </div>
+        <div class="form-group">
+          <i class="fas fa-location-arrow"></i>
+          <input type="text" name="delivery" required placeholder="Delivery Address" />
+        </div>
+        <div class="form-group">
+          <i class="fas fa-truck"></i>
+          <select name="truckType" required>
+            <option value="" disabled selected>Select Truck Type</option>
+            <option value="mini">Mini Truck</option>
+            <option value="pickup">Pickup Truck</option>
+            <option value="container">Container Truck</option>
+          </select>
+        </div>
+        <div class="form-group textarea-group">
+          <i class="fas fa-box-open"></i>
+          <textarea name="cargoDescription"
+            placeholder="Cargo Description (e.g., 3 pieces of furniture, 5 boxes)"></textarea>
+        </div>
+        <div class="form-group textarea-group">
+          <i class="fas fa-info-circle"></i>
+          <textarea name="specialInstructions"
+            placeholder="Special Instructions (e.g., fragile contents, deliver to 3rd floor)"></textarea>
+        </div>
+        <div class="form-group">
+          <i class="fas fa-calendar"></i>
+          <input type="datetime-local" name="datetime" required />
+        </div>
+        <button type="submit" id="book-btn">
+          Book Now
+          <div class="spinner"></div>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <section id="register" class="section">
+    <div class="glass-box">
+      <h2>Driver Registration</h2>
+      <p>Join our network of trusted drivers and get more business.</p>
+      <form id="driverForm">
+        <div class="form-group">
+          <i class="fas fa-user"></i>
+          <input type="text" name="driverName" required placeholder="Driver Name" />
+        </div>
+        <div class="form-group">
+          <i class="fas fa-phone"></i>
+          <input type="tel" name="phone" required placeholder="Phone Number" />
+        </div>
+        <div class="form-group">
+          <i class="fas fa-id-card"></i>
+          <input type="text" name="license" required placeholder="License Number" />
+        </div>
+        <div class="form-group">
+          <i class="fas fa-truck"></i>
+          <select name="truckType" required>
+            <option value="" disabled selected>Select Truck Type</option>
+            <option value="mini">Mini Truck</option>
+            <option value="pickup">Pickup Truck</option>
+            <option value="container">Container Truck</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <i class="fas fa-truck"></i>
+          <input type="text" name="vehicleNumber" required placeholder="Vehicle Number" />
+        </div>
+        <div class="form-group">
+          <i class="fas fa-weight-hanging"></i>
+          <input type="text" name="vehicleCapacity" required placeholder="Vehicle Capacity (in tonnes)" />
+        </div>
+        <div class="form-group">
+          <i class="fas fa-map-marked-alt"></i>
+          <input type="text" name="serviceAreas" required
+            placeholder="Preferred Service Areas (e.g., Chennai, Coimbatore)" />
+        </div>
+        <button type="submit" id="register-btn">
+          Register
+          <div class="spinner"></div>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <section id="about" class="section">
+    <div class="glass-box">
+      <h2>About Us</h2>
+      <p>Connecting logistics with simplicity and reliability.</p>
+      <img src="https://placehold.co/600x400/032d66/ff9800?text=Our+Team" alt="Our Team" />
+      <p style="margin-top: 20px;">Quick Truck is a digital logistics platform built to bridge the gap between
+        transporters and customers by
+        offering seamless truck bookings, real-time updates, and verified driver partners.</p>
+    </div>
+  </section>
+
+  <section id="feedback" class="section">
+    <div class="glass-box">
+      <h2>Give Us Feedback</h2>
+      <p>We value your opinion! Let us know how we can improve.</p>
+      <form id="feedbackForm">
+        <div class="form-group">
+          <i class="fas fa-user"></i>
+          <input type="text" name="name" required placeholder="Your Name" />
+        </div>
+        <div class="form-group">
+          <i class="fas fa-envelope"></i>
+          <input type="email" name="email" required placeholder="Email Address" />
+        </div>
+        <div class="form-group textarea-group">
+          <i class="fas fa-comment"></i>
+          <textarea name="feedback" required placeholder="Your Feedback"></textarea>
+        </div>
+        <button type="submit" id="feedback-btn">
+          Submit Feedback
+          <div class="spinner"></div>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2025 Quick Truck. All Rights Reserved.</p>
+      <p>Contact us: support@quicktruck.in | +91-98765-43210</p>
+    </div>
+  </footer>
+
+  <!-- Message box element -->
+  <div id="message-box" class="message-box">
+    <p id="message-content"></p>
+    <button id="close-message-box">Close</button>
+  </div>
+
+  <!-- JavaScript to handle form submissions and mobile menu -->
+  <script type="module">
+    import { ref, push, set, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+
+    // This is a short delay function to prevent API from being throttled
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    const exponentialBackoff = async (func, retries = 3, delay = 1000) => {
+      try {
+        return await func();
+      } catch (error) {
+        if (retries > 0) {
+          console.warn(`Retrying in ${delay / 1000}s...`);
+          await sleep(delay);
+          return exponentialBackoff(func, retries - 1, delay * 2);
+        } else {
+          throw error;
+        }
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const bookingForm = document.getElementById('bookingForm');
+      const driverForm = document.getElementById('driverForm');
+      const feedbackForm = document.getElementById('feedbackForm');
+      const messageBox = document.getElementById('message-box');
+      const messageContent = document.getElementById('message-content');
+      const closeMessageBoxBtn = document.getElementById('close-message-box');
+      const menuToggle = document.getElementById('menu-toggle');
+      const navMenu = document.getElementById('nav-menu');
+      const navLinks = navMenu.querySelectorAll('a');
+
+      // Function to show a custom message box
+      function showMessage(message) {
+        messageContent.textContent = message;
+        messageBox.style.display = 'block';
+      }
+
+      // Event listener to close the message box
+      closeMessageBoxBtn.addEventListener('click', () => {
+        messageBox.style.display = 'none';
+      });
+
+      // Generic function to handle form submission to Realtime Database
+      async function handleFormSubmission(event, form, collectionName) {
+        event.preventDefault();
+
+        // Find the submit button within the form to get the spinner
+        const button = form.querySelector('button[type="submit"]');
+        if (!button) {
+          console.error("Could not find submit button in form:", form.id);
+          return;
+        }
+        const spinner = button.querySelector('.spinner');
+
+        button.disabled = true;
+        spinner.classList.add('active');
+        showMessage("Submitting...");
+
+        // Await the Firebase initialization and auth to be complete
+        const { db, appId, user } = await window.getFirebase();
+
+        // Check if Firebase is initialized and a user is authenticated before proceeding
+        if (!db || !user) {
+          console.error("Realtime Database is not initialized or user is not authenticated. Cannot submit the form.");
+          showMessage("Submission failed: Database is not connected.");
+          button.disabled = false;
+          spinner.classList.remove('active');
+          return;
+        }
+
+        const dbPath = `artifacts/${appId}/public/data/${collectionName}`;
+        const formData = new FormData(form);
+        let data = {
+          ...Object.fromEntries(formData.entries()),
+          userId: user.uid, // Add the user ID to the data
+          timestamp: serverTimestamp(),
+        };
+
+        try {
+          // Logic for generating a sequential ID
+          if (collectionName === 'bookings' || collectionName === 'drivers') {
+            const counterRef = ref(db, `artifacts/${appId}/counters/${collectionName}`);
+            const counterSnapshot = await exponentialBackoff(() => get(counterRef));
+            const currentCount = counterSnapshot.exists() ? counterSnapshot.val() : 0;
+            const newCount = currentCount + 1;
+
+            // Update the counter in the database
+            await exponentialBackoff(() => set(counterRef, newCount));
+
+            // Create the sequential ID and set it as the key for the new record
+            let sequentialId;
+            if (collectionName === 'bookings') {
+              sequentialId = `Booking-${newCount}`;
+              data.bookingId = sequentialId;
+            } else {
+              sequentialId = `Reg-${newCount}`;
+              data.regId = sequentialId;
+            }
+
+            const recordRef = ref(db, `${dbPath}/${sequentialId}`);
+            await exponentialBackoff(() => set(recordRef, data));
+          } else {
+            // For other forms (like feedback), use the default push method to generate a key
+            const dbRef = ref(db, dbPath);
+            await exponentialBackoff(() => push(dbRef, data));
+          }
+
+          showMessage('Submission successful!');
+          form.reset();
+        } catch (e) {
+          console.error("Error adding data: ", e);
+          showMessage('Submission failed. Please try again.');
+        } finally {
+          button.disabled = false;
+          spinner.classList.remove('active');
+        }
+      }
+
+      // Event listener for the booking form submission
+      bookingForm.addEventListener('submit', (event) => {
+        handleFormSubmission(event, bookingForm, 'bookings');
+      });
+
+      // Event listener for the driver registration form submission
+      driverForm.addEventListener('submit', (event) => {
+        handleFormSubmission(event, driverForm, 'drivers');
+      });
+
+      // Event listener for the feedback form submission
+      feedbackForm.addEventListener('submit', (event) => {
+        handleFormSubmission(event, feedbackForm, 'feedback');
+      });
+
+      // Event listener for the mobile menu toggle
+      menuToggle.addEventListener('click', () => {
+        navMenu.classList.toggle('nav-active');
+      });
+
+      // Event listener to close the menu when clicking a link
+      navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          if (navMenu.classList.contains('nav-active')) {
+            navMenu.classList.remove('nav-active');
+          }
+        });
+      });
+
+      // Event listener to close the menu when clicking anywhere else on the document
+      document.addEventListener('click', (event) => {
+        // Check if the menu is open and the click is outside the menu and toggle button
+        if (navMenu.classList.contains('nav-active') && !navMenu.contains(event.target) && !menuToggle.contains(event.target)) {
+          navMenu.classList.remove('nav-active');
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
