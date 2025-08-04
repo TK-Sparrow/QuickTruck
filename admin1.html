@@ -8,128 +8,172 @@
   <!-- Load Tailwind CSS from CDN for styling -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Load Lucide Icons for a clean, modern look -->
-  <script src="https://cdn.jsdelivr.net/npm/lucide@0.418.0/dist/umd/lucide.min.js"></script>
-  <!--
-    Loading Font Awesome for icons. The icons are used in the booking and
-    driver registration forms, and for the new hamburger menu.
-    -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     /* Custom styles for the app */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
     body {
       font-family: 'Inter', sans-serif;
       background-color: #f4f7f9;
     }
 
-    .glass-effect {
-      background: rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    /* Transform the sidebar for mobile drawer effect */
+    #sidebar {
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .sidebar-open {
+      transform: translateX(0) !important;
+    }
+
+    /* Active Tab Indicator */
+    .tab-active {
+      background-color: #1a73e8;
+      color: white;
+      font-weight: 600;
+      border-radius: 9999px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     }
   </style>
 </head>
 
-<body class="bg-gray-100 min-h-screen flex flex-col items-center">
+<body class="bg-gray-100 min-h-screen flex flex-col lg:flex-row text-gray-800">
 
-  <!-- Main container for the app -->
-  <div class="max-w-7xl w-full mx-auto p-4 md:p-8">
+  <!-- Mobile Menu Button -->
+  <button id="mobile-menu-btn" class="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-full shadow-lg">
+    <i data-lucide="menu" class="w-6 h-6 text-gray-700"></i>
+  </button>
 
-    <!-- Header Section -->
-    <header class="w-full flex justify-between items-center bg-white rounded-xl p-4 shadow-lg mb-8">
-      <div class="flex items-center">
-        <i class="fas fa-truck text-2xl text-blue-600 mr-3"></i>
-        <h1 class="text-3xl font-bold text-gray-800">Quick Truck Admin Panel</h1>
+  <!-- Sidebar / Mobile Drawer Menu -->
+  <aside id="sidebar"
+    class="fixed inset-y-0 left-0 w-64 bg-white z-40 lg:z-auto shadow-xl lg:shadow-none p-6 transition-transform transform -translate-x-full lg:translate-x-0 lg:flex-shrink-0 flex flex-col">
+    <div class="flex items-center mb-10">
+      <div class="p-2 bg-blue-600 rounded-full mr-3">
+        <i data-lucide="truck" class="w-6 h-6 text-white"></i>
       </div>
-      <div class="flex items-center">
-        <span id="userIdDisplay" class="text-sm text-gray-500 mr-4 hidden md:block"></span>
+      <h1 class="text-2xl font-bold text-gray-900">Quick Truck</h1>
+    </div>
+
+    <!-- Navigation Links -->
+    <nav class="flex-grow">
+      <ul class="space-y-2">
+        <li>
+          <a href="#" data-tab="dashboard"
+            class="tab-link flex items-center p-3 text-gray-600 hover:bg-gray-100 rounded-full transition-colors duration-200">
+            <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-tab="bookings"
+            class="tab-link flex items-center p-3 text-gray-600 hover:bg-gray-100 rounded-full transition-colors duration-200">
+            <i data-lucide="box" class="w-5 h-5 mr-3"></i>
+            <span>Bookings</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-tab="drivers"
+            class="tab-link flex items-center p-3 text-gray-600 hover:bg-gray-100 rounded-full transition-colors duration-200">
+            <i data-lucide="users-round" class="w-5 h-5 mr-3"></i>
+            <span>Drivers</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-tab="feedback"
+            class="tab-link flex items-center p-3 text-gray-600 hover:bg-gray-100 rounded-full transition-colors duration-200">
+            <i data-lucide="message-square-text" class="w-5 h-5 mr-3"></i>
+            <span>Feedback</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- User Info and Logout -->
+    <div class="mt-auto pt-6 border-t border-gray-200">
+      <div class="flex items-center justify-between">
+        <span id="userIdDisplay" class="text-xs text-gray-500 truncate mr-2"></span>
         <button id="logoutBtn"
-          class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300">
-          Logout
+          class="flex items-center justify-center p-2 bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-colors duration-200">
+          <i data-lucide="log-out" class="w-5 h-5"></i>
         </button>
       </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main id="main-content" class="flex-grow p-4 md:p-8 lg:ml-64">
+    <!-- Header -->
+    <header class="flex justify-between items-center bg-white rounded-xl p-4 md:p-6 shadow-md mb-8">
+      <h2 id="page-title" class="text-2xl font-bold text-gray-900">Dashboard</h2>
     </header>
 
-    <!-- Main Content Area -->
-    <main id="admin-content" class="bg-white rounded-xl shadow-lg p-4 md:p-8 hidden">
-
-      <!-- Admin Tabs -->
-      <div class="flex border-b border-gray-200">
-        <button id="tab-dashboard"
-          class="py-2 px-4 text-center font-semibold text-gray-700 hover:text-blue-600 border-b-2 border-transparent transition duration-300">
-          Dashboard
-        </button>
-        <button id="tab-drivers"
-          class="py-2 px-4 text-center font-semibold text-gray-700 hover:text-blue-600 border-b-2 border-transparent transition duration-300">
-          Driver Management
-        </button>
-        <button id="tab-bookings"
-          class="py-2 px-4 text-center font-semibold text-gray-700 hover:text-blue-600 border-b-2 border-transparent transition duration-300">
-          Booking Management
-        </button>
-        <button id="tab-feedback"
-          class="py-2 px-4 text-center font-semibold text-gray-700 hover:text-blue-600 border-b-2 border-transparent transition duration-300">
-          Feedback Management
-        </button>
-      </div>
+    <!-- Content Sections -->
+    <div id="content-container">
 
       <!-- Dashboard Tab Content -->
-      <div id="content-dashboard" class="mt-8 hidden">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">Overview</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6">
-          <!-- Card for Total Bookings -->
+      <div id="content-dashboard" class="space-y-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+          <!-- Metric Card -->
           <div
-            class="bg-blue-500 text-white rounded-xl p-6 shadow-md flex flex-col items-center justify-center col-span-1">
-            <i class="fas fa-box text-5xl opacity-80 mb-2"></i>
+            class="bg-white rounded-xl p-6 shadow-md flex flex-col items-center justify-center text-center transition-transform hover:scale-105 duration-300">
+            <div class="p-3 rounded-full bg-blue-100 text-blue-600 mb-3">
+              <i data-lucide="box" class="w-8 h-8"></i>
+            </div>
             <div id="totalBookings" class="text-4xl font-bold">0</div>
-            <div class="text-lg font-medium mt-1">Total Bookings</div>
+            <div class="text-sm font-medium text-gray-500 mt-1">Total Bookings</div>
           </div>
-
-          <!-- Card for Total Drivers -->
+          <!-- Metric Card -->
           <div
-            class="bg-green-500 text-white rounded-xl p-6 shadow-md flex flex-col items-center justify-center col-span-1">
-            <i class="fas fa-users text-5xl opacity-80 mb-2"></i>
+            class="bg-white rounded-xl p-6 shadow-md flex flex-col items-center justify-center text-center transition-transform hover:scale-105 duration-300">
+            <div class="p-3 rounded-full bg-green-100 text-green-600 mb-3">
+              <i data-lucide="users-round" class="w-8 h-8"></i>
+            </div>
             <div id="totalDrivers" class="text-4xl font-bold">0</div>
-            <div class="text-lg font-medium mt-1">Total Drivers</div>
+            <div class="text-sm font-medium text-gray-500 mt-1">Total Drivers</div>
           </div>
-
-          <!-- Card for Completed Bookings -->
+          <!-- Metric Card -->
           <div
-            class="bg-teal-500 text-white rounded-xl p-6 shadow-md flex flex-col items-center justify-center col-span-1">
-            <i data-lucide="badge-check" class="w-12 h-12 opacity-80 mb-2"></i>
+            class="bg-white rounded-xl p-6 shadow-md flex flex-col items-center justify-center text-center transition-transform hover:scale-105 duration-300">
+            <div class="p-3 rounded-full bg-teal-100 text-teal-600 mb-3">
+              <i data-lucide="badge-check" class="w-8 h-8"></i>
+            </div>
             <div id="completedBookings" class="text-4xl font-bold">0</div>
-            <div class="text-lg font-medium mt-1">Completed Bookings</div>
+            <div class="text-sm font-medium text-gray-500 mt-1">Completed Bookings</div>
           </div>
-
-          <!-- Card for Pending Bookings -->
+          <!-- Metric Card -->
           <div
-            class="bg-yellow-500 text-white rounded-xl p-6 shadow-md flex flex-col items-center justify-center col-span-1">
-            <i class="fas fa-hourglass-half text-5xl opacity-80 mb-2"></i>
+            class="bg-white rounded-xl p-6 shadow-md flex flex-col items-center justify-center text-center transition-transform hover:scale-105 duration-300">
+            <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mb-3">
+              <i data-lucide="hourglass" class="w-8 h-8"></i>
+            </div>
             <div id="pendingBookings" class="text-4xl font-bold">0</div>
-            <div class="text-lg font-medium mt-1">Pending Bookings</div>
+            <div class="text-sm font-medium text-gray-500 mt-1">Pending Bookings</div>
           </div>
-
-          <!-- Card for Idle Drivers -->
+          <!-- Metric Card -->
           <div
-            class="bg-indigo-500 text-white rounded-xl p-6 shadow-md flex flex-col items-center justify-center col-span-1">
-            <i class="fas fa-truck-moving text-5xl opacity-80 mb-2"></i>
+            class="bg-white rounded-xl p-6 shadow-md flex flex-col items-center justify-center text-center transition-transform hover:scale-105 duration-300">
+            <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 mb-3">
+              <i data-lucide="truck" class="w-8 h-8"></i>
+            </div>
             <div id="idleDrivers" class="text-4xl font-bold">0</div>
-            <div class="text-lg font-medium mt-1">Idle Drivers</div>
+            <div class="text-sm font-medium text-gray-500 mt-1">Idle Drivers</div>
           </div>
-
-          <!-- Card for Total Revenue -->
+          <!-- Metric Card -->
           <div
-            class="bg-purple-500 text-white rounded-xl p-6 shadow-md flex flex-col items-center justify-center col-span-1">
-            <i data-lucide="dollar-sign" class="w-12 h-12 opacity-80 mb-2"></i>
+            class="bg-white rounded-xl p-6 shadow-md flex flex-col items-center justify-center text-center transition-transform hover:scale-105 duration-300">
+            <div class="p-3 rounded-full bg-purple-100 text-purple-600 mb-3">
+              <i data-lucide="dollar-sign" class="w-8 h-8"></i>
+            </div>
             <div id="totalRevenue" class="text-4xl font-bold">$0</div>
-            <div class="text-lg font-medium mt-1">Total Revenue</div>
+            <div class="text-sm font-medium text-gray-500 mt-1">Total Revenue</div>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- Recent Bookings Widget -->
           <div class="bg-white rounded-xl shadow-md p-6">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">Recent Bookings</h3>
+            <h3 class="text-xl font-bold mb-4">Recent Bookings</h3>
             <ul id="recentBookingsList" class="space-y-3">
               <!-- Recent bookings will be dynamically inserted here -->
             </ul>
@@ -137,7 +181,7 @@
 
           <!-- Recent Feedback Widget -->
           <div class="bg-white rounded-xl shadow-md p-6">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">Recent Feedback</h3>
+            <h3 class="text-xl font-bold mb-4">Recent Feedback</h3>
             <ul id="recentFeedbackList" class="space-y-3">
               <!-- Recent feedback will be dynamically inserted here -->
             </ul>
@@ -145,25 +189,72 @@
         </div>
       </div>
 
-      <!-- Driver Management Tab Content -->
-      <div id="content-drivers" class="mt-8 hidden">
-        <div class="mb-4">
-          <h2 class="text-2xl font-bold text-gray-800 mb-4">Drivers</h2>
-          <div class="flex space-x-2 mb-4">
-            <button class="filter-drivers-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-md"
-              data-status="all">All</button>
-            <button class="filter-drivers-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-md"
-              data-status="pending">Pending</button>
-            <button class="filter-drivers-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-md"
-              data-status="accepted">Accepted</button>
-            <button class="filter-drivers-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-md"
-              data-status="rejected">Rejected</button>
-          </div>
+      <!-- Bookings Tab Content -->
+      <div id="content-bookings" class="hidden">
+        <div class="mb-6 flex flex-wrap gap-2">
+          <button class="filter-bookings-btn px-4 py-2 text-sm rounded-full transition-colors duration-200"
+            data-status="all">All</button>
+          <button class="filter-bookings-btn px-4 py-2 text-sm rounded-full transition-colors duration-200"
+            data-status="pending">Pending</button>
+          <button class="filter-bookings-btn px-4 py-2 text-sm rounded-full transition-colors duration-200"
+            data-status="accepted">Accepted</button>
+          <button class="filter-bookings-btn px-4 py-2 text-sm rounded-full transition-colors duration-200"
+            data-status="completed">Completed</button>
+          <button class="filter-bookings-btn px-4 py-2 text-sm rounded-full transition-colors duration-200"
+            data-status="cancelled">Cancelled</button>
         </div>
-        <div class="overflow-x-auto">
-          <table class="min-w-full bg-white rounded-md shadow-md">
+
+        <!-- Mobile Card View for Bookings -->
+        <div id="bookingsMobileList" class="lg:hidden space-y-4">
+          <!-- Booking cards will be dynamically inserted here -->
+        </div>
+
+        <!-- Desktop Table View for Bookings -->
+        <div class="hidden lg:block overflow-x-auto bg-white rounded-xl shadow-md">
+          <table class="min-w-full">
             <thead>
-              <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+              <tr class="text-gray-600 uppercase text-xs leading-normal bg-gray-50">
+                <th class="py-3 px-6 text-left">Booking ID</th>
+                <th class="py-3 px-6 text-left">From</th>
+                <th class="py-3 px-6 text-left">To</th>
+                <th class="py-3 px-6 text-left">Status</th>
+                <th class="py-3 px-6 text-left">Customer</th>
+                <th class="py-3 px-6 text-left">Driver</th>
+                <th class="py-3 px-6 text-left">Fare</th>
+                <th class="py-3 px-6 text-left">Date</th>
+                <th class="py-3 px-6 text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bookingsTableBody" class="text-sm font-light">
+              <!-- Booking rows will be dynamically inserted here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Drivers Tab Content -->
+      <div id="content-drivers" class="hidden">
+        <div class="mb-6 flex flex-wrap gap-2">
+          <button class="filter-drivers-btn px-4 py-2 text-sm rounded-full transition-colors duration-200"
+            data-status="all">All</button>
+          <button class="filter-drivers-btn px-4 py-2 text-sm rounded-full transition-colors duration-200"
+            data-status="pending">Pending</button>
+          <button class="filter-drivers-btn px-4 py-2 text-sm rounded-full transition-colors duration-200"
+            data-status="accepted">Accepted</button>
+          <button class="filter-drivers-btn px-4 py-2 text-sm rounded-full transition-colors duration-200"
+            data-status="rejected">Rejected</button>
+        </div>
+
+        <!-- Mobile Card View for Drivers -->
+        <div id="driversMobileList" class="lg:hidden space-y-4">
+          <!-- Driver cards will be dynamically inserted here -->
+        </div>
+
+        <!-- Desktop Table View for Drivers -->
+        <div class="hidden lg:block overflow-x-auto bg-white rounded-xl shadow-md">
+          <table class="min-w-full">
+            <thead>
+              <tr class="text-gray-600 uppercase text-xs leading-normal bg-gray-50">
                 <th class="py-3 px-6 text-left">Driver Name</th>
                 <th class="py-3 px-6 text-left">Status</th>
                 <th class="py-3 px-6 text-left">Truck Type</th>
@@ -171,91 +262,60 @@
                 <th class="py-3 px-6 text-left">Actions</th>
               </tr>
             </thead>
-            <tbody id="driversTableBody" class="text-gray-600 text-sm font-light">
+            <tbody id="driversTableBody" class="text-sm font-light">
               <!-- Driver rows will be dynamically inserted here -->
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- Booking Management Tab Content -->
-      <div id="content-bookings" class="mt-8 hidden">
-        <div class="mb-4">
-          <h2 class="text-2xl font-bold text-gray-800 mb-4">Bookings</h2>
-          <div class="flex space-x-2 mb-4">
-            <button class="filter-bookings-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-md"
-              data-status="all">All</button>
-            <button class="filter-bookings-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-md"
-              data-status="pending">Pending</button>
-            <button class="filter-bookings-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-md"
-              data-status="accepted">Accepted</button>
-            <button class="filter-bookings-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-md"
-              data-status="completed">Completed</button>
-            <button class="filter-bookings-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-md"
-              data-status="cancelled">Cancelled</button>
-          </div>
+      <!-- Feedback Tab Content -->
+      <div id="content-feedback" class="hidden">
+        <!-- Mobile Card View for Feedback -->
+        <div id="feedbackMobileList" class="lg:hidden space-y-4">
+          <!-- Feedback cards will be dynamically inserted here -->
         </div>
-        <div class="overflow-x-auto">
-          <table class="min-w-full bg-white rounded-md shadow-md">
-            <thead>
-              <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                <th class="py-3 px-6 text-left">Booking ID</th>
-                <th class="py-3 px-6 text-left">From</th>
-                <th class="py-3 px-6 text-left">To</th>
-                <th class="py-3 px-6 text-left">Status</th>
-                <th class="py-3 px-6 text-left">Customer Name</th>
-                <th class="py-3 px-6 text-left">Driver Name</th>
-                <th class="py-3 px-6 text-left">Fare</th>
-                <th class="py-3 px-6 text-left">Delivery Date</th>
-                <th class="py-3 px-6 text-left">Delivery Time</th>
-                <th class="py-3 px-6 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="bookingsTableBody" class="text-gray-600 text-sm font-light">
-              <!-- Booking rows will be dynamically inserted here -->
-            </tbody>
-          </table>
-        </div>
-      </div>
 
-      <!-- Feedback Management Tab Content -->
-      <div id="content-feedback" class="mt-8 hidden">
-        <h2 class="text-2xl font-bold text-gray-800 mb-4">Customer Feedback</h2>
-        <div class="overflow-x-auto">
-          <table class="min-w-full bg-white rounded-md shadow-md">
+        <!-- Desktop Table View for Feedback -->
+        <div class="hidden lg:block overflow-x-auto bg-white rounded-xl shadow-md">
+          <table class="min-w-full">
             <thead>
-              <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+              <tr class="text-gray-600 uppercase text-xs leading-normal bg-gray-50">
                 <th class="py-3 px-6 text-left">Name</th>
                 <th class="py-3 px-6 text-left">Email</th>
                 <th class="py-3 px-6 text-left">Feedback</th>
+                <th class="py-3 px-6 text-left">Date</th>
               </tr>
             </thead>
-            <tbody id="feedbackTableBody" class="text-gray-600 text-sm font-light">
+            <tbody id="feedbackTableBody" class="text-sm font-light">
               <!-- Feedback rows will be dynamically inserted here -->
             </tbody>
           </table>
         </div>
       </div>
-
-    </main>
-
-  </div>
+    </div>
+  </main>
 
   <!-- Custom Modal/Dialog for actions -->
-  <div id="modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden"
+  <div id="modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 hidden z-50"
     aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-      <div class="mt-3 text-center">
-        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title"></h3>
-        <div class="mt-2" id="modal-body">
-          <!-- Modal content will be dynamically inserted here -->
-        </div>
-        <div class="items-center px-4 py-3" id="modal-footer">
-          <!-- Modal buttons will be dynamically inserted here -->
-        </div>
+    <div
+      class="relative bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm transition-transform transform scale-95 duration-200">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold text-gray-900" id="modal-title"></h3>
+        <button data-dismiss="modal" class="text-gray-400 hover:text-gray-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="modal-body" class="text-sm text-gray-700 mb-6">
+        <!-- Modal content will be dynamically inserted here -->
+      </div>
+      <div id="modal-footer" class="flex justify-end space-x-2">
+        <!-- Modal buttons will be dynamically inserted here -->
       </div>
     </div>
   </div>
+
 
   <!-- Firebase SDK imports -->
   <script type="module">
@@ -278,9 +338,11 @@
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 
+    // IMPORTANT: The `__firebase_config` and `__app_id` variables are provided by the hosting environment.
+    // They are crucial for connecting to the correct Firebase project and should not be modified.
     const __firebase_config = "{\"apiKey\":\"AIzaSyDyqN2xmtJwsnhqfQfNeuMtnZ3sjb7nnMw\",\"authDomain\":\"quick-truck-66fb0.firebaseapp.com\",\"projectId\":\"quick-truck-66fb0\",\"storageBucket\":\"quick-truck-66fb0.firebasestorage.app\",\"messagingSenderId\":\"477852731829\",\"appId\":\"1:477852731829:web:e9e143a0bf49ae8e8f71fc\"}";
-
     let __app_id = "1:477852731829:web:e9e143a0bf49ae8e8f71fc";
+
     // Global variables for Firebase access provided by the environment
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
     const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
@@ -295,24 +357,28 @@
     let userId = null;
 
     // UI elements
-    const adminContent = document.getElementById('admin-content');
-    const tabDashboard = document.getElementById('tab-dashboard');
-    const tabDrivers = document.getElementById('tab-drivers');
-    const tabBookings = document.getElementById('tab-bookings');
-    const tabFeedback = document.getElementById('tab-feedback');
+    const mainContent = document.getElementById('main-content');
+    const pageTitle = document.getElementById('page-title');
+    const tabLinks = document.querySelectorAll('.tab-link');
+    const contentContainer = document.getElementById('content-container');
     const contentDashboard = document.getElementById('content-dashboard');
-    const contentDrivers = document.getElementById('content-drivers');
     const contentBookings = document.getElementById('content-bookings');
+    const contentDrivers = document.getElementById('content-drivers');
     const contentFeedback = document.getElementById('content-feedback');
     const driversTableBody = document.getElementById('driversTableBody');
     const bookingsTableBody = document.getElementById('bookingsTableBody');
     const feedbackTableBody = document.getElementById('feedbackTableBody');
+    const driversMobileList = document.getElementById('driversMobileList');
+    const bookingsMobileList = document.getElementById('bookingsMobileList');
+    const feedbackMobileList = document.getElementById('feedbackMobileList');
     const userIdDisplay = document.getElementById('userIdDisplay');
     const logoutBtn = document.getElementById('logoutBtn');
     const modal = document.getElementById('modal');
     const modalTitle = document.getElementById('modal-title');
     const modalBody = document.getElementById('modal-body');
     const modalFooter = document.getElementById('modal-footer');
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const sidebar = document.getElementById('sidebar');
 
     // Dashboard metric elements
     const totalBookingsEl = document.getElementById('totalBookings');
@@ -354,27 +420,6 @@
       }
     };
 
-    // Listen for auth state changes
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        userId = user.uid;
-        userIdDisplay.textContent = `User ID: ${userId}`;
-        adminContent.classList.remove('hidden');
-
-        // Set initial view to Dashboard
-        tabDashboard.classList.add('border-blue-600', 'text-blue-600');
-        contentDashboard.classList.remove('hidden');
-
-        // Fetch initial data for all tabs
-        await fetchDrivers();
-        await fetchBookings();
-        await fetchFeedback();
-      } else {
-        console.log("User is signed out.");
-        adminContent.classList.add('hidden');
-      }
-    });
-
     // --- UI and Data Rendering Functions ---
     // Shows a custom modal dialog
     const showModal = (title, bodyHtml, footerHtml) => {
@@ -382,11 +427,13 @@
       modalBody.innerHTML = bodyHtml;
       modalFooter.innerHTML = footerHtml;
       modal.classList.remove('hidden');
+      document.body.classList.add('overflow-hidden');
     };
 
     // Closes the modal dialog
     const closeModal = () => {
       modal.classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
     };
 
     // Renders the dashboard with the latest data
@@ -395,7 +442,6 @@
       const totalBookingsCount = Object.keys(allBookingsData).length;
       const acceptedDriversCount = Object.values(allDriversData).filter(d => d.status !== 'pending' && d.status !== 'rejected').length;
       const completedBookingsCount = Object.values(allBookingsData).filter(b => b.status === 'completed').length;
-      // Corrected logic to also count bookings with no status as pending
       const pendingBookingsCount = Object.values(allBookingsData).filter(b => b.status === 'pending' || !b.status).length;
       const idleDriversCount = Object.values(allDriversData).filter(d => d.status === 'idle' || d.status === 'available').length;
       const totalRevenue = Object.values(allBookingsData)
@@ -413,8 +459,8 @@
       // Render recent activity lists
       renderRecentBookings();
       renderRecentFeedback();
+      lucide.createIcons();
     };
-
 
     // Renders the recent bookings list
     const renderRecentBookings = () => {
@@ -424,19 +470,22 @@
         .slice(0, 5);
 
       if (recentBookings.length === 0) {
-        recentBookingsList.innerHTML = `<li class="text-gray-500 italic">No recent bookings.</li>`;
+        recentBookingsList.innerHTML = `<li class="text-gray-500 italic text-center">No recent bookings.</li>`;
         return;
       }
 
       recentBookings.forEach(([bookingId, booking]) => {
         const li = document.createElement('li');
-        li.className = 'bg-gray-100 p-3 rounded-md flex justify-between items-center';
+        li.className = 'bg-gray-50 p-3 rounded-xl flex items-center justify-between transition-colors hover:bg-gray-100';
         li.innerHTML = `
           <div>
             <span class="font-semibold text-gray-800">${booking.name}</span>
-            <p class="text-sm text-gray-500">${booking.pickup} to ${booking.delivery}</p>
+            <p class="text-xs text-gray-500">${booking.pickup} to ${booking.delivery}</p>
           </div>
-          <span class="text-xs font-medium text-blue-600">${booking.status || 'pending'}</span>
+          <div class="text-right">
+            <span class="text-xs font-medium text-blue-600">${booking.status || 'pending'}</span>
+            <p class="text-xs text-gray-400">#${bookingId.substring(0, 5)}...</p>
+          </div>
         `;
         recentBookingsList.appendChild(li);
       });
@@ -450,17 +499,19 @@
         .slice(0, 5);
 
       if (recentFeedback.length === 0) {
-        recentFeedbackList.innerHTML = `<li class="text-gray-500 italic">No recent feedback.</li>`;
+        recentFeedbackList.innerHTML = `<li class="text-gray-500 italic text-center">No recent feedback.</li>`;
         return;
       }
 
       recentFeedback.forEach(([feedbackId, feedback]) => {
         const li = document.createElement('li');
-        li.className = 'bg-gray-100 p-3 rounded-md';
+        li.className = 'bg-gray-50 p-3 rounded-xl transition-colors hover:bg-gray-100';
+        const timestamp = new Date(parseInt(feedbackId));
+        const formattedDate = timestamp.toLocaleString();
         li.innerHTML = `
           <div class="flex justify-between items-center mb-1">
             <span class="font-semibold text-gray-800">${feedback.name || 'Anonymous'}</span>
-            <span class="text-xs text-gray-400">${new Date(parseInt(feedbackId)).toLocaleDateString()}</span>
+            <span class="text-xs text-gray-400">${formattedDate}</span>
           </div>
           <p class="text-sm text-gray-600 line-clamp-2">${feedback.feedback}</p>
         `;
@@ -472,11 +523,11 @@
     const updateDriverFilterButtonStyles = (activeStatus) => {
       document.querySelectorAll('.filter-drivers-btn').forEach(btn => {
         if (btn.dataset.status === activeStatus) {
+          btn.classList.add('bg-blue-600', 'text-white');
           btn.classList.remove('bg-gray-200', 'text-gray-700');
-          btn.classList.add('bg-blue-500', 'text-white');
         } else {
-          btn.classList.remove('bg-blue-500', 'text-white');
           btn.classList.add('bg-gray-200', 'text-gray-700');
+          btn.classList.remove('bg-blue-600', 'text-white');
         }
       });
     };
@@ -485,11 +536,11 @@
     const updateBookingFilterButtonStyles = (activeStatus) => {
       document.querySelectorAll('.filter-bookings-btn').forEach(btn => {
         if (btn.dataset.status === activeStatus) {
+          btn.classList.add('bg-blue-600', 'text-white');
           btn.classList.remove('bg-gray-200', 'text-gray-700');
-          btn.classList.add('bg-blue-500', 'text-white');
         } else {
-          btn.classList.remove('bg-blue-500', 'text-white');
           btn.classList.add('bg-gray-200', 'text-gray-700');
+          btn.classList.remove('bg-blue-600', 'text-white');
         }
       });
     };
@@ -497,49 +548,100 @@
     // Renders a single driver table row
     const createDriverRow = (driver, driverId) => {
       const row = document.createElement('tr');
-      row.className = 'border-b border-gray-200 hover:bg-gray-100';
+      row.className = 'border-b border-gray-200 hover:bg-gray-50 transition-colors duration-150';
       const driverStatus = driver.status || 'pending';
+      let statusColor = 'bg-gray-200 text-gray-700';
+      if (driverStatus === 'idle' || driverStatus === 'available') statusColor = 'bg-green-100 text-green-600';
+      if (driverStatus === 'busy') statusColor = 'bg-yellow-100 text-yellow-600';
+      if (driverStatus === 'pending') statusColor = 'bg-blue-100 text-blue-600';
+      if (driverStatus === 'rejected') statusColor = 'bg-red-100 text-red-600';
 
       let buttonsHtml = '';
       if (driverStatus === 'pending') {
         buttonsHtml = `
-          <button data-id="${driverId}" class="accept-driver-btn bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-2 rounded-md text-xs transition duration-300">Accept</button>
-          <button data-id="${driverId}" class="reject-driver-btn bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-2 rounded-md text-xs transition duration-300">Reject</button>
+          <button data-id="${driverId}" class="accept-driver-btn bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-3 rounded-full text-xs transition duration-300 mr-1">Accept</button>
+          <button data-id="${driverId}" class="reject-driver-btn bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-3 rounded-full text-xs transition duration-300">Reject</button>
         `;
       } else if (driverStatus === 'rejected') {
         buttonsHtml = `
-          <button data-id="${driverId}" class="accept-rejected-driver-btn bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-2 rounded-md text-xs transition duration-300">Accept Back</button>
+          <button data-id="${driverId}" class="accept-rejected-driver-btn bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-3 rounded-full text-xs transition duration-300">Accept Back</button>
         `;
       } else { // Accepted, idle, busy, available
+        const toggleBtnText = (driverStatus === 'idle' || driverStatus === 'available') ? 'Mark Busy' : 'Mark Idle';
+        const toggleBtnColor = (driverStatus === 'idle' || driverStatus === 'available') ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-blue-500 hover:bg-blue-600';
         buttonsHtml = `
-          <button data-id="${driverId}" data-status="${driverStatus}" class="toggle-driver-status-btn font-semibold py-1 px-2 rounded-md text-xs transition duration-300
-            ${driverStatus === 'idle' || driverStatus === 'available' ? 'bg-yellow-500 text-white hover:bg-yellow-600' : 'bg-blue-500 text-white hover:bg-blue-600'}">
-            Mark as ${driverStatus === 'idle' || driverStatus === 'available' ? 'Busy' : 'Idle'}
-          </button>
-          <button data-id="${driverId}" class="reject-accepted-driver-btn bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-2 rounded-md text-xs transition duration-300 ml-1">Reject</button>
+          <button data-id="${driverId}" data-status="${driverStatus}" class="toggle-driver-status-btn font-semibold py-1 px-3 rounded-full text-xs transition duration-300 ${toggleBtnColor} text-white mr-1">${toggleBtnText}</button>
+          <button data-id="${driverId}" class="reject-accepted-driver-btn bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-3 rounded-full text-xs transition duration-300">Reject</button>
         `;
       }
 
       row.innerHTML = `
-        <td class="py-3 px-6 text-left whitespace-nowrap">${driver.driverName}</td>
-        <td class="py-3 px-6 text-left"><span class="font-medium text-blue-600">${driverStatus}</span></td>
-        <td class="py-3 px-6 text-left">${driver.truckType}</td>
-        <td class="py-3 px-6 text-left">${driver.phone}</td>
-        <td class="py-3 px-6 text-left">${buttonsHtml}</td>
+        <td class="py-3 px-6 whitespace-nowrap">${driver.driverName}</td>
+        <td class="py-3 px-6"><span class="font-medium text-xs px-2 py-1 rounded-full ${statusColor}">${driverStatus}</span></td>
+        <td class="py-3 px-6 whitespace-nowrap">${driver.truckType}</td>
+        <td class="py-3 px-6 whitespace-nowrap">${driver.phone}</td>
+        <td class="py-3 px-6 flex flex-wrap gap-1">${buttonsHtml}</td>
       `;
       return row;
     };
 
-    // Renders a single booking table row with the new design
+    // Renders a single driver mobile card
+    const createDriverCard = (driver, driverId) => {
+      const card = document.createElement('div');
+      card.className = 'bg-white rounded-xl shadow-md p-4 space-y-2 transition-transform hover:scale-[1.02] duration-300';
+      const driverStatus = driver.status || 'pending';
+      let statusColor = 'bg-gray-200 text-gray-700';
+      if (driverStatus === 'idle' || driverStatus === 'available') statusColor = 'bg-green-100 text-green-600';
+      if (driverStatus === 'busy') statusColor = 'bg-yellow-100 text-yellow-600';
+      if (driverStatus === 'pending') statusColor = 'bg-blue-100 text-blue-600';
+      if (driverStatus === 'rejected') statusColor = 'bg-red-100 text-red-600';
+
+      let buttonsHtml = '';
+      if (driverStatus === 'pending') {
+        buttonsHtml = `
+          <button data-id="${driverId}" class="accept-driver-btn w-1/2 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-full text-sm transition duration-300">Accept</button>
+          <button data-id="${driverId}" class="reject-driver-btn w-1/2 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded-full text-sm transition duration-300">Reject</button>
+        `;
+      } else if (driverStatus === 'rejected') {
+        buttonsHtml = `
+          <button data-id="${driverId}" class="accept-rejected-driver-btn w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-full text-sm transition duration-300">Accept Back</button>
+        `;
+      } else { // Accepted, idle, busy, available
+        const toggleBtnText = (driverStatus === 'idle' || driverStatus === 'available') ? 'Mark Busy' : 'Mark Idle';
+        const toggleBtnColor = (driverStatus === 'idle' || driverStatus === 'available') ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-blue-500 hover:bg-blue-600';
+        buttonsHtml = `
+          <button data-id="${driverId}" data-status="${driverStatus}" class="toggle-driver-status-btn w-1/2 font-semibold py-2 rounded-full text-sm transition duration-300 ${toggleBtnColor} text-white">
+            ${toggleBtnText}
+          </button>
+          <button data-id="${driverId}" class="reject-accepted-driver-btn w-1/2 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded-full text-sm transition duration-300">Reject</button>
+        `;
+      }
+
+      card.innerHTML = `
+        <div class="flex items-center justify-between">
+            <span class="font-bold text-lg">${driver.driverName}</span>
+            <span class="font-medium text-xs px-2 py-1 rounded-full ${statusColor}">${driverStatus}</span>
+        </div>
+        <div class="text-sm text-gray-600 space-y-1">
+            <p><span class="font-semibold">Truck Type:</span> ${driver.truckType}</p>
+            <p><span class="font-semibold">Phone:</span> ${driver.phone}</p>
+        </div>
+        <div class="flex justify-between space-x-2 mt-4">
+          ${buttonsHtml}
+        </div>
+      `;
+      return card;
+    };
+
+    // Renders a single booking table row with the new design and action buttons
     const createBookingRow = (booking, bookingId) => {
       const row = document.createElement('tr');
-      row.className = 'border-b border-gray-200 hover:bg-gray-100 cursor-pointer';
+      row.className = 'border-b border-gray-200 hover:bg-gray-50 transition-colors duration-150 cursor-pointer';
       row.dataset.id = bookingId;
 
       const bookingStatus = booking.status || 'pending';
       const driverName = booking.assignedDriverName || 'Unassigned';
-      const fare = booking.fare ? `$${booking.fare}` : 'N/A';
-
+      const fare = booking.fare ? `$${parseFloat(booking.fare).toFixed(2)}` : 'N/A';
       let deliveryDate = 'N/A';
       let deliveryTime = 'N/A';
 
@@ -547,72 +649,172 @@
         [deliveryDate, deliveryTime] = booking.datetime.split('T');
       }
 
+      let statusColor = 'bg-gray-200 text-gray-700';
+      if (bookingStatus === 'completed') statusColor = 'bg-green-100 text-green-600';
+      if (bookingStatus === 'accepted') statusColor = 'bg-yellow-100 text-yellow-600';
+      if (bookingStatus === 'pending') statusColor = 'bg-blue-100 text-blue-600';
+      if (bookingStatus === 'cancelled') statusColor = 'bg-red-100 text-red-600';
+
+      let actionButtonsHtml = '';
+      if (bookingStatus === 'pending') {
+        actionButtonsHtml = `
+            <button data-id="${bookingId}" class="accept-booking-btn bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-3 rounded-full text-xs transition duration-300">Accept</button>
+            <button data-id="${bookingId}" class="cancel-booking-btn bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-3 rounded-full text-xs transition duration-300">Cancel</button>
+          `;
+      } else if (bookingStatus === 'accepted') {
+        actionButtonsHtml = `
+            <button data-id="${bookingId}" class="complete-booking-btn bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded-full text-xs transition duration-300">Complete</button>
+            <button data-id="${bookingId}" class="cancel-booking-btn bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-3 rounded-full text-xs transition duration-300">Cancel</button>
+          `;
+      } else {
+        actionButtonsHtml = `<span class="text-xs text-gray-400">No actions</span>`;
+      }
+
       row.innerHTML = `
-        <td class="py-3 px-6 text-left whitespace-nowrap text-xs text-gray-500">${bookingId}</td>
-        <td class="py-3 px-6 text-left whitespace-nowrap">${booking.pickup}</td>
-        <td class="py-3 px-6 text-left whitespace-nowrap">${booking.delivery}</td>
-        <td class="py-3 px-6 text-left"><span class="font-medium text-blue-600">${bookingStatus}</span></td>
-        <td class="py-3 px-6 text-left">${booking.name}</td>
-        <td class="py-3 px-6 text-left">${driverName}</td>
-        <td class="py-3 px-6 text-left">${fare}</td>
-        <td class="py-3 px-6 text-left">${deliveryDate}</td>
-        <td class="py-3 px-6 text-left">${deliveryTime}</td>
-        <td class="py-3 px-6 text-left relative">
-          <button class="booking-actions-btn" data-id="${bookingId}">
-            <i data-lucide="more-vertical" class="w-5 h-5 text-gray-500 hover:text-gray-800"></i>
-          </button>
-        </td>
+        <td class="py-3 px-6 whitespace-nowrap text-xs text-gray-500 font-mono">${bookingId}</td>
+        <td class="py-3 px-6 whitespace-nowrap">${booking.pickup}</td>
+        <td class="py-3 px-6 whitespace-nowrap">${booking.delivery}</td>
+        <td class="py-3 px-6"><span class="font-medium text-xs px-2 py-1 rounded-full ${statusColor}">${bookingStatus}</span></td>
+        <td class="py-3 px-6 whitespace-nowrap">${booking.name}</td>
+        <td class="py-3 px-6 whitespace-nowrap">${driverName}</td>
+        <td class="py-3 px-6 whitespace-nowrap">${fare}</td>
+        <td class="py-3 px-6 whitespace-nowrap">${deliveryDate}</td>
+        <td class="py-3 px-6 flex flex-wrap gap-1">${actionButtonsHtml}</td>
       `;
       return row;
+    };
+
+    // Renders a single booking mobile card with the new design and action buttons
+    const createBookingCard = (booking, bookingId) => {
+      const card = document.createElement('div');
+      card.className = 'bg-white rounded-xl shadow-md p-4 space-y-2 relative transition-transform hover:scale-[1.02] duration-300';
+      card.dataset.id = bookingId;
+
+      const bookingStatus = booking.status || 'pending';
+      const driverName = booking.assignedDriverName || 'Unassigned';
+      const fare = booking.fare ? `$${parseFloat(booking.fare).toFixed(2)}` : 'N/A';
+      const datetime = booking.datetime ? new Date(booking.datetime).toLocaleString() : 'N/A';
+      let statusColor = 'bg-gray-200 text-gray-700';
+      if (bookingStatus === 'completed') statusColor = 'bg-green-100 text-green-600';
+      if (bookingStatus === 'accepted') statusColor = 'bg-yellow-100 text-yellow-600';
+      if (bookingStatus === 'pending') statusColor = 'bg-blue-100 text-blue-600';
+      if (bookingStatus === 'cancelled') statusColor = 'bg-red-100 text-red-600';
+
+
+      let actionButtonsHtml = '';
+      if (bookingStatus === 'pending') {
+        actionButtonsHtml = `
+            <button data-id="${bookingId}" class="accept-booking-btn w-1/2 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-full text-sm transition duration-300">Accept</button>
+            <button data-id="${bookingId}" class="cancel-booking-btn w-1/2 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded-full text-sm transition duration-300">Cancel</button>
+          `;
+      } else if (bookingStatus === 'accepted') {
+        actionButtonsHtml = `
+            <button data-id="${bookingId}" class="complete-booking-btn w-1/2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-full text-sm transition duration-300">Complete</button>
+            <button data-id="${bookingId}" class="cancel-booking-btn w-1/2 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded-full text-sm transition duration-300">Cancel</button>
+          `;
+      } else {
+        actionButtonsHtml = `<span class="text-sm text-gray-400 italic">No actions available</span>`;
+      }
+
+      card.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-gray-500 font-mono">#${bookingId.substring(0, 8)}...</span>
+          <span class="font-medium text-xs px-2 py-1 rounded-full ${statusColor}">${bookingStatus}</span>
+        </div>
+        <div class="flex items-center text-lg font-bold text-gray-800">
+          <span>${booking.pickup}</span>
+          <i data-lucide="arrow-right" class="inline-block w-4 h-4 mx-2"></i>
+          <span>${booking.delivery}</span>
+        </div>
+        <div class="text-sm text-gray-600 space-y-1">
+          <p><span class="font-semibold">Customer:</span> ${booking.name}</p>
+          <p><span class="font-semibold">Driver:</span> ${driverName}</p>
+          <p><span class="font-semibold">Fare:</span> ${fare}</p>
+          <p><span class="font-semibold">Date:</span> ${datetime}</p>
+        </div>
+        <div class="flex justify-between space-x-2 mt-4">
+          ${actionButtonsHtml}
+        </div>
+      `;
+      return card;
     };
 
 
     // Renders a single feedback table row
-    const createFeedbackRow = (feedback) => {
+    const createFeedbackRow = (feedback, feedbackId) => {
       const row = document.createElement('tr');
-      row.className = 'border-b border-gray-200 hover:bg-gray-100';
-
+      row.className = 'border-b border-gray-200 hover:bg-gray-50 transition-colors duration-150';
+      const timestamp = new Date(parseInt(feedbackId));
+      const formattedDate = timestamp.toLocaleString();
       row.innerHTML = `
-        <td class="py-3 px-6 text-left whitespace-nowrap">${feedback.name || 'N/A'}</td>
-        <td class="py-3 px-6 text-left">${feedback.email || 'N/A'}</td>
-        <td class="py-3 px-6 text-left">${feedback.feedback || 'N/A'}</td>
+        <td class="py-3 px-6 whitespace-nowrap">${feedback.name || 'N/A'}</td>
+        <td class="py-3 px-6 whitespace-nowrap">${feedback.email || 'N/A'}</td>
+        <td class="py-3 px-6 whitespace-normal">${feedback.feedback || 'N/A'}</td>
+        <td class="py-3 px-6 whitespace-nowrap">${formattedDate}</td>
       `;
       return row;
     };
 
+    // Renders a single feedback mobile card
+    const createFeedbackCard = (feedback, feedbackId) => {
+      const card = document.createElement('div');
+      card.className = 'bg-white rounded-xl shadow-md p-4 space-y-2 transition-transform hover:scale-[1.02] duration-300';
 
-    // Filters and renders the drivers table based on status
+      const timestamp = new Date(parseInt(feedbackId));
+      const formattedDate = timestamp.toLocaleString();
+
+      card.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-gray-800">${feedback.name || 'Anonymous'}</span>
+          <span class="text-sm text-gray-500">${formattedDate}</span>
+        </div>
+        <div class="text-sm text-gray-600 mt-2">
+          <p class="font-semibold">Email: ${feedback.email || 'N/A'}</p>
+          <p class="mt-2 text-gray-700 line-clamp-3">${feedback.feedback}</p>
+        </div>
+      `;
+      return card;
+    };
+
+    // Filters and renders the drivers table/cards based on status
     const filterDrivers = (status) => {
       driversTableBody.innerHTML = '';
+      driversMobileList.innerHTML = '';
       Object.entries(allDriversData).forEach(([driverId, driver]) => {
         const driverStatus = driver.status || 'pending';
         if (status === 'all' || driverStatus === status || (status === 'accepted' && driverStatus !== 'pending' && driverStatus !== 'rejected')) {
           driversTableBody.appendChild(createDriverRow(driver, driverId));
+          driversMobileList.appendChild(createDriverCard(driver, driverId));
         }
       });
       attachDriverEventListeners();
       lucide.createIcons();
     };
 
-    // Filters and renders the bookings table based on status
+    // Filters and renders the bookings table/cards based on status
     const filterBookings = (status) => {
       bookingsTableBody.innerHTML = '';
+      bookingsMobileList.innerHTML = '';
       Object.entries(allBookingsData).forEach(([bookingId, booking]) => {
         const bookingStatus = booking.status || 'pending';
         if (status === 'all' || bookingStatus === status || (status === 'accepted' && bookingStatus === 'accepted')) {
           bookingsTableBody.appendChild(createBookingRow(booking, bookingId));
+          bookingsMobileList.appendChild(createBookingCard(booking, bookingId));
         }
       });
       attachBookingEventListeners();
       lucide.createIcons();
     };
 
-    // Renders the feedback table
+    // Renders the feedback table/cards
     const renderFeedback = () => {
       feedbackTableBody.innerHTML = '';
+      feedbackMobileList.innerHTML = '';
       Object.entries(allFeedbackData).forEach(([feedbackId, feedback]) => {
-        feedbackTableBody.appendChild(createFeedbackRow(feedback));
+        feedbackTableBody.appendChild(createFeedbackRow(feedback, feedbackId));
+        feedbackMobileList.appendChild(createFeedbackCard(feedback, feedbackId));
       });
+      lucide.createIcons();
     };
 
 
@@ -714,20 +916,22 @@
     };
 
     const attachBookingEventListeners = () => {
-      const bookingTableBody = document.getElementById('bookingsTableBody');
+      const bookingContainer = document.getElementById('content-bookings');
 
-      // Event delegation for booking row clicks to show details
-      bookingTableBody.addEventListener('click', (event) => {
-        // Find the closest row (tr) element
-        const row = event.target.closest('tr');
-        if (!row) return;
+      // Event delegation for booking row clicks to show details (desktop)
+      bookingContainer.addEventListener('click', (event) => {
+        // Find the closest row (tr) element or card div
+        const target = event.target;
+        let element = target.closest('tr') || target.closest('.bg-white.rounded-xl.shadow-md.p-4');
 
-        // Check if the click was on the action button itself. If so, don't show the full details modal.
-        if (event.target.closest('.booking-actions-btn')) {
+        if (!element) return;
+
+        // Check if the click was on a button. If so, don't show the full details modal.
+        if (target.closest('button')) {
           return;
         }
 
-        const bookingId = row.dataset.id;
+        const bookingId = element.dataset.id;
         const booking = allBookingsData[bookingId];
 
         if (booking) {
@@ -738,136 +942,102 @@
           }
           const detailsHtml = `
                   <div class="space-y-4 text-left">
-                      <p><strong>Booking ID:</strong> ${bookingId}</p>
-                      <p><strong>Status:</strong> <span class="font-medium text-blue-600">${booking.status || 'N/A'}</span></p>
-                      <p><strong>Customer Name:</strong> ${booking.name || 'N/A'}</p>
-                      <p><strong>Customer Phone:</strong> ${booking.phone || 'N/A'}</p>
-                      <p><strong>Customer Email:</strong> ${booking.email || 'N/A'}</p>
-                      <p><strong>Pickup Location:</strong> ${booking.pickup || 'N/A'}</p>
-                      <p><strong>Delivery Location:</strong> ${booking.delivery || 'N/A'}</p>
-                      <p><strong>Delivery Date:</strong> ${deliveryDate}</p>
-                      <p><strong>Delivery Time:</strong> ${deliveryTime}</p>
-                      <p><strong>Cargo Description:</strong> ${booking.cargoDescription || 'N/A'}</p>
-                      <p><strong>Special Instructions:</strong> ${booking.specialInstructions || 'N/A'}</p>
-                      <p><strong>Assigned Driver:</strong> ${booking.assignedDriverName || 'Unassigned'}</p>
-                      <p><strong>Fare:</strong> ${booking.fare ? `$${booking.fare}` : 'N/A'}</p>
+                      <p><span class="font-semibold">Booking ID:</span> <span class="font-mono text-xs">${bookingId}</span></p>
+                      <p><span class="font-semibold">Status:</span> <span class="font-medium text-blue-600">${booking.status || 'N/A'}</span></p>
+                      <p><span class="font-semibold">Customer Name:</span> ${booking.name || 'N/A'}</p>
+                      <p><span class="font-semibold">Customer Phone:</span> ${booking.phone || 'N/A'}</p>
+                      <p><span class="font-semibold">Customer Email:</span> ${booking.email || 'N/A'}</p>
+                      <p><span class="font-semibold">Pickup Location:</span> ${booking.pickup || 'N/A'}</p>
+                      <p><span class="font-semibold">Delivery Location:</span> ${booking.delivery || 'N/A'}</p>
+                      <p><span class="font-semibold">Delivery Date:</span> ${deliveryDate}</p>
+                      <p><span class="font-semibold">Delivery Time:</span> ${deliveryTime}</p>
+                      <p><span class="font-semibold">Cargo Description:</span> ${booking.cargoDescription || 'N/A'}</p>
+                      <p><span class="font-semibold">Special Instructions:</span> ${booking.specialInstructions || 'N/A'}</p>
+                      <p><span class="font-semibold">Assigned Driver:</span> ${booking.assignedDriverName || 'Unassigned'}</p>
+                      <p><span class="font-semibold">Fare:</span> ${booking.fare ? `$${parseFloat(booking.fare).toFixed(2)}` : 'N/A'}</p>
                   </div>
               `;
           showModal('Booking Details', detailsHtml,
-            `<button data-dismiss="modal" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition duration-300">Close</button>`
+            `<button data-dismiss="modal" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-full transition duration-300">Close</button>`
           );
         }
       });
 
 
-      // Event delegation for action menu button clicks
-      bookingTableBody.addEventListener('click', async (event) => {
-        const actionButton = event.target.closest('.booking-actions-btn');
-        if (!actionButton) return;
+      // Event listeners for booking actions
+      document.querySelectorAll('.accept-booking-btn').forEach(button => {
+        button.onclick = async (event) => {
+          event.stopPropagation();
+          const bookingId = event.currentTarget.dataset.id;
+          const idleDrivers = await getIdleDrivers();
 
-        // Prevent the row's click event from firing
-        event.stopPropagation();
-
-        const bookingId = actionButton.dataset.id;
-        const booking = allBookingsData[bookingId];
-
-        if (!booking) return;
-
-        const bookingStatus = booking.status || 'pending';
-        let actionButtonsHtml = '';
-
-        if (bookingStatus === 'pending') {
-          actionButtonsHtml = `
-              <button id="modal-accept-booking" data-id="${bookingId}" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md mb-2 transition duration-300">Accept</button>
-              <button id="modal-cancel-booking" data-id="${bookingId}" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-md transition duration-300">Cancel</button>
-          `;
-        } else if (bookingStatus === 'accepted') {
-          actionButtonsHtml = `
-              <button id="modal-complete-booking" data-id="${bookingId}" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md mb-2 transition duration-300">Mark as Completed</button>
-              <button id="modal-cancel-booking" data-id="${bookingId}" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-md transition duration-300">Cancel</button>
-          `;
-        } else if (bookingStatus === 'completed') {
-          actionButtonsHtml = `
-              <button id="modal-revert-booking" data-id="${bookingId}" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-md mb-2 transition duration-300">Revert to Accepted</button>
-          `;
-        } else if (bookingStatus === 'cancelled') {
-          actionButtonsHtml = `
-              <p class="text-gray-500">No actions available for cancelled bookings.</p>
-          `;
-        }
-
-        showModal('Booking Actions', `
-            <div class="flex flex-col space-y-2 mt-4 text-left">
-                <p><strong>Booking:</strong> ${booking.pickup} to ${booking.delivery}</p>
-                <p><strong>Current Status:</strong> <span class="font-medium text-blue-600">${bookingStatus}</span></p>
-                <div class="mt-4">
-                  ${actionButtonsHtml}
-                </div>
-            </div>
-            `,
-          `<button data-dismiss="modal" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-md transition duration-300">Close</button>`
-        );
-
-        // Add event listeners to the dynamically created action buttons inside the modal
-        const acceptButton = document.getElementById('modal-accept-booking');
-        if (acceptButton) {
-          acceptButton.addEventListener('click', async () => {
-            const idleDrivers = await getIdleDrivers();
-
-            if (idleDrivers.length === 0) {
-              showModal('No Idle Drivers', '<p class="text-gray-700">There are currently no idle drivers available to assign. Please accept a new driver or wait for an existing one to become idle.</p>',
-                `<button data-dismiss="modal" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-md transition duration-300">OK</button>`
-              );
-              return;
-            }
-
-            const driverOptionsHtml = idleDrivers.map(driver => `<option value="${driver.id}">${driver.name}</option>`).join('');
-
-            showModal('Accept Booking & Assign Driver',
-              `<div class="mt-4 space-y-4 text-left">
-                        <label class="block text-sm font-medium text-gray-700">Set Fare:</label>
-                        <input type="number" id="fareInput" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Enter fare amount" required>
-                        <label class="block text-sm font-medium text-gray-700">Assign Driver:</label>
-                        <select id="driverSelect" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
-                        ${driverOptionsHtml}
-                        </select>
-                    </div>`,
-              `<button id="confirmAcceptBooking" data-id="${bookingId}" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md transition duration-300">Confirm</button>
-                    <button data-dismiss="modal" class="ml-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-md transition duration-300">Cancel</button>`
+          if (idleDrivers.length === 0) {
+            showModal('No Idle Drivers', '<p class="text-gray-700">There are currently no idle drivers available to assign. Please accept a new driver or wait for an existing one to become idle.</p>',
+              `<button data-dismiss="modal" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300">OK</button>`
             );
+            return;
+          }
 
-            document.getElementById('confirmAcceptBooking').onclick = () => {
-              const fare = document.getElementById('fareInput').value;
-              const driverSelect = document.getElementById('driverSelect');
-              const assignedDriverId = driverSelect.value;
-              const assignedDriverName = driverSelect.options[driverSelect.selectedIndex].text;
-              if (fare && assignedDriverId) {
-                updateBookingStatus(bookingId, 'accepted', assignedDriverId, fare, assignedDriverName);
-                updateDriverStatus(assignedDriverId, 'busy');
-              } else {
-                showModal('Error', '<p class="text-red-600">Please enter a fare and select a driver.</p>',
-                  `<button data-dismiss="modal" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-md transition duration-300">OK</button>`
-                );
-              }
-            };
-          });
-        }
+          const driverOptionsHtml = idleDrivers.map(driver => `<option value="${driver.id}">${driver.name}</option>`).join('');
 
-        const cancelButton = document.getElementById('modal-cancel-booking');
-        if (cancelButton) {
-          cancelButton.addEventListener('click', () => updateBookingStatus(bookingId, 'cancelled'));
-        }
+          showModal('Accept Booking & Assign Driver',
+            `<div class="mt-4 space-y-4 text-left">
+                  <label class="block text-sm font-semibold text-gray-700">Set Fare:</label>
+                  <input type="number" id="fareInput" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Enter fare amount" required>
+                  <label class="block text-sm font-semibold text-gray-700">Assign Driver:</label>
+                  <select id="driverSelect" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-lg">
+                  ${driverOptionsHtml}
+                  </select>
+              </div>`,
+            `<button id="confirmAcceptBooking" data-id="${bookingId}" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300">Confirm</button>
+              <button data-dismiss="modal" class="ml-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300">Cancel</button>`
+          );
 
-        const completeButton = document.getElementById('modal-complete-booking');
-        if (completeButton) {
-          completeButton.addEventListener('click', () => updateBookingStatus(bookingId, 'completed'));
-        }
+          document.getElementById('confirmAcceptBooking').onclick = () => {
+            const fare = document.getElementById('fareInput').value;
+            const driverSelect = document.getElementById('driverSelect');
+            const assignedDriverId = driverSelect.value;
+            const assignedDriverName = driverSelect.options[driverSelect.selectedIndex].text;
+            if (fare && assignedDriverId) {
+              updateBookingStatus(bookingId, 'accepted', assignedDriverId, fare, assignedDriverName);
+              updateDriverStatus(assignedDriverId, 'busy');
+            } else {
+              showModal('Error', '<p class="text-red-600">Please enter a fare and select a driver.</p>',
+                `<button data-dismiss="modal" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300">OK</button>`
+              );
+            }
+          };
+        };
+      });
 
-        const revertButton = document.getElementById('modal-revert-booking');
-        if (revertButton) {
-          revertButton.addEventListener('click', () => updateBookingStatus(bookingId, 'accepted'));
-        }
+      document.querySelectorAll('.cancel-booking-btn').forEach(button => {
+        button.onclick = (event) => {
+          event.stopPropagation();
+          const bookingId = event.currentTarget.dataset.id;
+          showModal('Confirm Cancellation', `<p class="text-gray-700">Are you sure you want to cancel this booking? This action cannot be undone.</p>`,
+            `<button id="confirmCancelBooking" data-id="${bookingId}" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300">Yes, Cancel</button>
+             <button data-dismiss="modal" class="ml-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300">No, Go Back</button>`
+          );
+          document.getElementById('confirmCancelBooking').onclick = () => updateBookingStatus(bookingId, 'cancelled');
+        };
+      });
 
+      document.querySelectorAll('.complete-booking-btn').forEach(button => {
+        button.onclick = (event) => {
+          event.stopPropagation();
+          const bookingId = event.currentTarget.dataset.id;
+          showModal('Mark as Completed', `<p class="text-gray-700">Are you sure you want to mark this booking as completed? This will also make the assigned driver idle again.</p>`,
+            `<button id="confirmCompleteBooking" data-id="${bookingId}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-full transition duration-300">Yes, Complete</button>
+             <button data-dismiss="modal" class="ml-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300">No, Go Back</button>`
+          );
+          document.getElementById('confirmCompleteBooking').onclick = async () => {
+            const booking = allBookingsData[bookingId];
+            if (booking && booking.assignedDriverId) {
+              await updateDriverStatus(booking.assignedDriverId, 'idle');
+            }
+            updateBookingStatus(bookingId, 'completed');
+          };
+        };
       });
     };
 
@@ -894,85 +1064,129 @@
     const handleTabSwitch = (tabId) => {
       // Hide all content divs
       contentDashboard.classList.add('hidden');
-      contentDrivers.classList.add('hidden');
       contentBookings.classList.add('hidden');
+      contentDrivers.classList.add('hidden');
       contentFeedback.classList.add('hidden');
 
-      // Remove active class from all tabs
-      tabDashboard.classList.remove('border-blue-600', 'text-blue-600');
-      tabDrivers.classList.remove('border-blue-600', 'text-blue-600');
-      tabBookings.classList.remove('border-blue-600', 'text-blue-600');
-      tabFeedback.classList.remove('border-blue-600', 'text-blue-600');
+      // Remove active class from all tabs and update titles
+      tabLinks.forEach(link => {
+        link.classList.remove('tab-active', 'text-white', 'hover:bg-gray-100');
+        link.classList.add('text-gray-600', 'hover:bg-gray-100');
+        if (link.dataset.tab === tabId) {
+          link.classList.add('tab-active');
+          pageTitle.textContent = link.querySelector('span').textContent;
+        }
+      });
 
       // Show the selected content and activate the tab
-      if (tabId === 'tab-dashboard') {
+      if (tabId === 'dashboard') {
         contentDashboard.classList.remove('hidden');
-        tabDashboard.classList.add('border-blue-600', 'text-blue-600');
         renderDashboard();
-      } else if (tabId === 'tab-drivers') {
+      } else if (tabId === 'drivers') {
         contentDrivers.classList.remove('hidden');
-        tabDrivers.classList.add('border-blue-600', 'text-blue-600');
         filterDrivers(lastDriverFilterStatus);
         updateDriverFilterButtonStyles(lastDriverFilterStatus);
-      } else if (tabId === 'tab-bookings') {
+      } else if (tabId === 'bookings') {
         contentBookings.classList.remove('hidden');
-        tabBookings.classList.add('border-blue-600', 'text-blue-600');
         filterBookings(lastBookingFilterStatus);
         updateBookingFilterButtonStyles(lastBookingFilterStatus);
-      } else if (tabId === 'tab-feedback') {
+      } else if (tabId === 'feedback') {
         contentFeedback.classList.remove('hidden');
-        tabFeedback.classList.add('border-blue-600', 'text-blue-600');
         renderFeedback();
       }
+      lucide.createIcons();
     };
 
-    // Event listeners for tabs
-    tabDashboard.addEventListener('click', () => handleTabSwitch('tab-dashboard'));
-    tabDrivers.addEventListener('click', () => handleTabSwitch('tab-drivers'));
-    tabBookings.addEventListener('click', () => handleTabSwitch('tab-bookings'));
-    tabFeedback.addEventListener('click', () => handleTabSwitch('tab-feedback'));
+    // Initial setup when the document is ready
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Listen for auth state changes
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          userId = user.uid;
+          userIdDisplay.textContent = `UID: ${userId}`;
 
+          // Initialize Lucide icons after authentication
+          lucide.createIcons();
 
-    // Filter button logic for drivers
-    document.querySelectorAll('.filter-drivers-btn').forEach(button => {
-      button.addEventListener('click', () => {
-        const status = button.dataset.status;
-        lastDriverFilterStatus = status; // Update last used filter
-        filterDrivers(status);
-        // Update active button styling
-        updateDriverFilterButtonStyles(status);
+          // Set initial view to Dashboard
+          handleTabSwitch('dashboard');
+
+          // Fetch initial data for all tabs
+          await fetchDrivers();
+          await fetchBookings();
+          await fetchFeedback();
+
+          // --- Attach Event Listeners after everything is ready ---
+          // Event listeners for tabs
+          tabLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+              e.preventDefault();
+              const tabId = link.dataset.tab;
+              handleTabSwitch(tabId);
+              // Close mobile sidebar if open
+              sidebar.classList.remove('sidebar-open');
+            });
+          });
+
+          // Filter button logic for drivers
+          document.querySelectorAll('.filter-drivers-btn').forEach(button => {
+            button.addEventListener('click', () => {
+              const status = button.dataset.status;
+              lastDriverFilterStatus = status; // Update last used filter
+              filterDrivers(status);
+              // Update active button styling
+              updateDriverFilterButtonStyles(status);
+            });
+          });
+
+          // Filter button logic for bookings
+          document.querySelectorAll('.filter-bookings-btn').forEach(button => {
+            button.addEventListener('click', () => {
+              const status = button.dataset.status;
+              lastBookingFilterStatus = status; // Update last used filter
+              filterBookings(status);
+              // Update active button styling
+              updateBookingFilterButtonStyles(status);
+            });
+          });
+
+          // Logout functionality
+          logoutBtn.addEventListener('click', async () => {
+            try {
+              await signOut(auth);
+            } catch (error) {
+              console.error("Error signing out: ", error);
+            }
+          });
+
+          // Event listener for the modal to close when clicking the backdrop
+          modal.addEventListener('click', (event) => {
+            if (event.target === modal || event.target.closest('[data-dismiss="modal"]')) {
+              closeModal();
+            }
+          });
+
+          // Mobile menu toggle
+          mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('sidebar-open');
+          });
+
+          // Close mobile menu when clicking outside
+          document.addEventListener('click', (event) => {
+            const isClickInsideSidebar = sidebar.contains(event.target) || mobileMenuBtn.contains(event.target);
+            if (!isClickInsideSidebar && sidebar.classList.contains('sidebar-open')) {
+              sidebar.classList.remove('sidebar-open');
+            }
+          });
+
+        } else {
+          console.log("User is signed out.");
+          // You might want to handle the signed out state here, e.g., show a login screen
+        }
       });
+      // Initial app authentication process
+      await setupApp();
     });
-
-    // Filter button logic for bookings
-    document.querySelectorAll('.filter-bookings-btn').forEach(button => {
-      button.addEventListener('click', () => {
-        const status = button.dataset.status;
-        lastBookingFilterStatus = status; // Update last used filter
-        filterBookings(status);
-        // Update active button styling
-        updateBookingFilterButtonStyles(status);
-      });
-    });
-
-    // Logout functionality
-    logoutBtn.addEventListener('click', async () => {
-      try {
-        await signOut(auth);
-      } catch (error) {
-        console.error("Error signing out: ", error);
-      }
-    });
-
-    // Event listener for the modal to close when clicking the backdrop
-    modal.addEventListener('click', (event) => {
-      if (event.target === modal || event.target.closest('[data-dismiss="modal"]')) {
-        closeModal();
-      }
-    });
-
-    // Initial app setup
-    setupApp();
   </script>
 </body>
 
